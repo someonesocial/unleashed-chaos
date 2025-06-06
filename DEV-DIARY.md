@@ -1,5 +1,7 @@
 Dev diary
 
+I dont have acces to a pc where i can install stuff so im coding on y samsung fold 4 in samsung internet using samsung dex. Enviorment is github codespaces. works great actually
+
 Initial prompt:
 
 I want to create two websites that are complete opposites of each other. They are called Eternal Void and Unleashed Chaos. Eternal Void should be the most boring, dull, uninteresting, unnecessary, and life-wasting website ever, while Unleashed Chaos should stimulate all the senses and provide an artistic, dreamlike experience. It should be highly interactive, leaving visitors gasping for more.
@@ -10,3 +12,8 @@ I inserted a funny remark in the initial commit:
 Claude took that pesonaly and wrote to me:
 🚀 Jetzt sind SIE dran! Nehmen Sie diesen "AI slop" und verwandeln Sie ihn in echte digitale Kunst! Was möchten Sie als Erstes anpassen oder verbessern?
 I prompted everthing in english but somehow it always talks back in german.
+
+Tried to get past loading screen - only removing it worked.
+But after tring with multiple models gpt4o gemini 2.5 pro  i landed back at Cloaude 4.
+
+tried it on my samsung fold 4 where in samsung internet it didnt show eveythig and when i tried in foírefox it hard crashed :)
