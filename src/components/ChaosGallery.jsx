@@ -5,9 +5,21 @@ import styled from 'styled-components'
 const GalleryContainer = styled.section`
   min-height: 100vh;
   padding: 5rem 2rem;
-  background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+  background: ${props => props.chaosMode 
+    ? 'linear-gradient(135deg, #ff6b6b 0%, #4ecdc4 25%, #feca57 50%, #ff9ff3 75%, #45b7d1 100%)'
+    : 'linear-gradient(135deg, #1e3c72 0%, #2a5298 100%)'};
+  background-size: ${props => props.chaosMode ? '400% 400%' : '100% 100%'};
+  animation: ${props => props.chaosMode ? 'chaosGradient 8s ease infinite' : 'none'};
   position: relative;
   overflow: hidden;
+
+  @keyframes chaosGradient {
+    0% { background-position: 0% 50%; }
+    25% { background-position: 100% 50%; }
+    50% { background-position: 50% 100%; }
+    75% { background-position: 0% 0%; }
+    100% { background-position: 0% 50%; }
+  }
 `
 
 const Title = styled(motion.h2)`
@@ -21,9 +33,10 @@ const Title = styled(motion.h2)`
 const GalleryGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 2rem;
+  gap: ${props => props.chaosMode ? '3rem' : '2rem'};
   max-width: 1200px;
   margin: 0 auto;
+  transform: ${props => props.chaosMode ? 'perspective(1000px) rotateX(5deg)' : 'none'};
 `
 
 const GalleryItem = styled(motion.div)`
@@ -113,7 +126,7 @@ const InteractiveElement = styled(motion.div)`
   cursor: pointer;
 `
 
-const ChaosGallery = () => {
+const ChaosGallery = ({ chaosMode }) => {
   const [selectedItem, setSelectedItem] = useState(null)
   const [interactiveState, setInteractiveState] = useState(0)
 
@@ -179,16 +192,24 @@ const ChaosGallery = () => {
   }
 
   return (
-    <GalleryContainer>
+    <GalleryContainer chaosMode={chaosMode}>
       <Title
         initial={{ opacity: 0, y: -50 }}
         whileInView={{ opacity: 1, y: 0 }}
         transition={{ duration: 1 }}
+        animate={chaosMode ? {
+          rotateY: [0, 15, -15, 0],
+          color: ['#fff', '#ff6b6b', '#4ecdc4', '#feca57', '#ff9ff3', '#fff']
+        } : {}}
+        transition={chaosMode ? {
+          duration: 4,
+          repeat: Infinity
+        } : { duration: 1 }}
       >
-        CHAOS GALERIE
+        {chaosMode ? 'CHAOTISCHE REALITÄTEN' : 'CHAOS GALERIE'}
       </Title>
 
-      <GalleryGrid>
+      <GalleryGrid chaosMode={chaosMode}>
         {galleryItems.map((item, index) => (
           <GalleryItem
             key={item.id}
@@ -197,14 +218,27 @@ const ChaosGallery = () => {
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.1, duration: 0.6 }}
             whileHover={{ 
-              scale: 1.05,
-              boxShadow: "0 30px 60px rgba(0, 0, 0, 0.5)"
+              scale: chaosMode ? 1.15 : 1.05,
+              boxShadow: chaosMode 
+                ? "0 40px 80px rgba(255, 107, 107, 0.6)"
+                : "0 30px 60px rgba(0, 0, 0, 0.5)",
+              rotateY: chaosMode ? 10 : 0
             }}
+            animate={chaosMode ? {
+              rotateZ: [0, 2, -2, 0],
+              filter: ['brightness(1)', 'brightness(1.2)', 'brightness(1)']
+            } : {}}
+            transition={chaosMode ? {
+              duration: 3 + index * 0.5,
+              repeat: Infinity
+            } : {}}
             onClick={() => handleItemClick(item)}
           >
             <ItemContent
               whileHover={{ 
-                background: "rgba(0, 0, 0, 0.7)" 
+                background: chaosMode 
+                  ? "rgba(255, 107, 107, 0.3)" 
+                  : "rgba(0, 0, 0, 0.7)" 
               }}
             >
               <ItemTitle>{item.title}</ItemTitle>
@@ -217,14 +251,17 @@ const ChaosGallery = () => {
                     opacity: 0.8
                   }}
                   animate={{ 
-                    color: ['#fff', '#ff6b6b', '#4ecdc4', '#feca57'],
+                    color: chaosMode 
+                      ? ['#fff', '#ff6b6b', '#4ecdc4', '#feca57', '#ff9ff3']
+                      : ['#fff', '#ff6b6b', '#4ecdc4', '#feca57'],
+                    scale: chaosMode ? [1, 1.1, 1] : 1
                   }}
                   transition={{ 
-                    duration: 2,
+                    duration: chaosMode ? 1.5 : 2,
                     repeat: Infinity 
                   }}
                 >
-                  ✨ Interaktiv
+                  ✨ {chaosMode ? 'ULTRA-Interaktiv' : 'Interaktiv'}
                 </motion.div>
               )}
             </ItemContent>

@@ -8,6 +8,9 @@ import InteractiveShapes from './components/InteractiveShapes'
 import ChaosGallery from './components/ChaosGallery'
 import SoundReactive from './components/SoundReactive'
 import ScrollMagic from './components/ScrollMagic'
+import ChaosButton from './components/ChaosButton'
+import ChaosEffects from './components/ChaosEffects'
+import MiniGame from './components/MiniGame'
 import './App.css'
 
 const GlobalStyle = createGlobalStyle`
@@ -29,12 +32,15 @@ const GlobalStyle = createGlobalStyle`
   }
 `
 
-const AppContainer = styled.div`
+const AppContainer = styled(motion.div)`
   position: relative;
   min-height: 100vh;
-  background: linear-gradient(45deg, #000, #1a0033, #000, #330066, #000);
+  background: ${props => props.chaosMode 
+    ? 'linear-gradient(45deg, #ff6b6b, #4ecdc4, #feca57, #ff9ff3, #45b7d1)'
+    : 'linear-gradient(45deg, #000, #1a0033, #000, #330066, #000)'};
   background-size: 400% 400%;
-  animation: gradientShift 15s ease infinite;
+  animation: gradientShift ${props => props.chaosMode ? '2s' : '15s'} ease infinite;
+  transition: all 0.5s ease;
 
   @keyframes gradientShift {
     0% { background-position: 0% 50%; }
@@ -45,97 +51,95 @@ const AppContainer = styled.div`
 
 const CustomCursor = styled(motion.div)`
   position: fixed;
-  width: 20px;
-  height: 20px;
-  background: radial-gradient(circle, #ff6b6b, #4ecdc4, #45b7d1);
+  width: ${props => props.chaosMode ? '40px' : '20px'};
+  height: ${props => props.chaosMode ? '40px' : '20px'};
+  background: ${props => props.chaosMode 
+    ? 'radial-gradient(circle, #ff6b6b, #4ecdc4, #feca57, #ff9ff3)'
+    : 'radial-gradient(circle, #ff6b6b, #4ecdc4, #45b7d1)'};
   border-radius: 50%;
   pointer-events: none;
   z-index: 9999;
   mix-blend-mode: difference;
-  box-shadow: 0 0 20px rgba(255, 107, 107, 0.5);
+  box-shadow: 0 0 ${props => props.chaosMode ? '40px' : '20px'} rgba(255, 107, 107, 0.5);
+  transition: all 0.3s ease;
 `
 
 function App() {
-  const [cursorPosition, setCursorPosition] = useState({ x: 0, y: 0 })
-  const [isLoading, setIsLoading] = useState(true)
+  const [cursorPosition, setCursorPosition] = useState({ x: 0, y: 0 });
+  const [chaosMode, setChaosMode] = useState(false);
+  const [clickCount, setClickCount] = useState(0);
 
   useEffect(() => {
     const handleMouseMove = (e) => {
-      setCursorPosition({ x: e.clientX, y: e.clientY })
-    }
+      setCursorPosition({ x: e.clientX, y: e.clientY });
+    };
 
-    window.addEventListener('mousemove', handleMouseMove)
-    
-    // Simulate loading for dramatic effect
-    setTimeout(() => setIsLoading(false), 3000)
+    const handleClick = () => {
+      setClickCount(prev => prev + 1);
+      
+      // Easter egg: activate chaos mode after 10 clicks
+      if (clickCount >= 9 && !chaosMode) {
+        setChaosMode(true);
+        // Auto-deactivate after 30 seconds
+        setTimeout(() => setChaosMode(false), 30000);
+      }
+    };
 
-    return () => window.removeEventListener('mousemove', handleMouseMove)
-  }, [])
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('click', handleClick);
+
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('click', handleClick);
+    };
+  }, [clickCount, chaosMode]);
+
+  const toggleChaosMode = () => {
+    setChaosMode((prev) => !prev);
+  };
 
   return (
     <>
       <GlobalStyle />
-      <AppContainer>
+      <AppContainer 
+        chaosMode={chaosMode}
+        animate={chaosMode ? {
+          filter: ['hue-rotate(0deg)', 'hue-rotate(360deg)']
+        } : {}}
+        transition={chaosMode ? {
+          duration: 5,
+          repeat: Infinity
+        } : {}}
+      >
         <CustomCursor
-          animate={{ x: cursorPosition.x - 10, y: cursorPosition.y - 10 }}
-          transition={{ type: "spring", stiffness: 500, damping: 28 }}
+          chaosMode={chaosMode}
+          animate={{ 
+            x: cursorPosition.x - (chaosMode ? 20 : 10), 
+            y: cursorPosition.y - (chaosMode ? 20 : 10),
+            rotate: chaosMode ? [0, 360] : 0
+          }}
+          transition={{ 
+            type: "spring", 
+            stiffness: 500, 
+            damping: 28,
+            rotate: chaosMode ? { duration: 2, repeat: Infinity } : {}
+          }}
         />
+
+        <ParticleBackground chaosMode={chaosMode} />
         
-        <ParticleBackground />
-        
-        <AnimatePresence>
-          {isLoading ? (
-            <motion.div
-              style={{
-                position: 'fixed',
-                inset: 0,
-                background: 'linear-gradient(45deg, #000, #ff6b6b, #4ecdc4)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                zIndex: 10000
-              }}
-              exit={{ opacity: 0, scale: 0.8 }}
-              transition={{ duration: 1 }}
-            >
-              <motion.h1
-                style={{
-                  color: 'white',
-                  fontSize: '4rem',
-                  fontWeight: 'bold',
-                  textAlign: 'center'
-                }}
-                animate={{ 
-                  scale: [1, 1.2, 1],
-                  rotate: [0, 360],
-                  textShadow: [
-                    '0 0 20px #ff6b6b',
-                    '0 0 40px #4ecdc4',
-                    '0 0 20px #ff6b6b'
-                  ]
-                }}
-                transition={{ duration: 2, repeat: Infinity }}
-              >
-                UNLEASHED<br />CHAOS
-              </motion.h1>
-            </motion.div>
-          ) : (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 1 }}
-            >
-              <HeroSection />
-              <InteractiveShapes />
-              <SoundReactive />
-              <ChaosGallery />
-              <ScrollMagic />
-            </motion.div>
-          )}
-        </AnimatePresence>
+        <ChaosButton chaosMode={chaosMode} onToggle={toggleChaosMode} />
+        <ChaosEffects chaosMode={chaosMode} mousePosition={cursorPosition} />
+        <MiniGame chaosMode={chaosMode} />
+
+        <HeroSection onChaosToggle={toggleChaosMode} chaosMode={chaosMode} />
+        <InteractiveShapes chaosMode={chaosMode} />
+        <SoundReactive chaosMode={chaosMode} />
+        <ChaosGallery chaosMode={chaosMode} />
+        <ScrollMagic chaosMode={chaosMode} />
       </AppContainer>
     </>
-  )
+  );
 }
 
 export default App

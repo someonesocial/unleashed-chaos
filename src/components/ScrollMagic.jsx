@@ -4,9 +4,12 @@ import styled from 'styled-components'
 
 const ScrollContainer = styled.section`
   min-height: 200vh;
-  background: linear-gradient(180deg, #000, #1a1a2e, #16213e, #0f3460);
+  background: ${props => props.chaosMode 
+    ? 'linear-gradient(180deg, #ff6b6b, #4ecdc4, #feca57, #ff9ff3, #45b7d1, #000)'
+    : 'linear-gradient(180deg, #000, #1a1a2e, #16213e, #0f3460)'};
   position: relative;
   overflow: hidden;
+  filter: ${props => props.chaosMode ? 'contrast(1.2) saturate(1.5)' : 'none'};
 `
 
 const FloatingText = styled(motion.div)`
@@ -77,7 +80,7 @@ const FinalMessage = styled(motion.div)`
   backdrop-filter: blur(10px);
 `
 
-const ScrollMagic = () => {
+const ScrollMagic = ({ chaosMode }) => {
   const containerRef = useRef(null)
   const { scrollYProgress } = useScroll({
     target: containerRef,
@@ -93,11 +96,11 @@ const ScrollMagic = () => {
   const isInView3 = useInView(textRef3, { once: false })
 
   // Transform values based on scroll
-  const y1 = useTransform(scrollYProgress, [0, 1], [0, -500])
-  const y2 = useTransform(scrollYProgress, [0, 1], [0, -800])
-  const y3 = useTransform(scrollYProgress, [0, 1], [0, -300])
-  const rotate = useTransform(scrollYProgress, [0, 1], [0, 720])
-  const scale = useTransform(scrollYProgress, [0, 0.5, 1], [1, 2, 0.5])
+  const y1 = useTransform(scrollYProgress, [0, 1], [0, chaosMode ? -800 : -500])
+  const y2 = useTransform(scrollYProgress, [0, 1], [0, chaosMode ? -1200 : -800])
+  const y3 = useTransform(scrollYProgress, [0, 1], [0, chaosMode ? -600 : -300])
+  const rotate = useTransform(scrollYProgress, [0, 1], [0, chaosMode ? 1440 : 720])
+  const scale = useTransform(scrollYProgress, [0, 0.5, 1], [1, chaosMode ? 3 : 2, 0.5])
   const opacity = useTransform(scrollYProgress, [0, 0.5, 1], [1, 0.5, 1])
 
   const parallaxElements = [
@@ -109,7 +112,7 @@ const ScrollMagic = () => {
   ]
 
   return (
-    <ScrollContainer ref={containerRef}>
+    <ScrollContainer ref={containerRef} chaosMode={chaosMode}>
       <ScrollIndicator style={{ scaleX: scrollYProgress }} />
 
       {/* Floating background text */}
@@ -120,8 +123,15 @@ const ScrollMagic = () => {
           y: y1,
           rotate: rotate
         }}
+        animate={chaosMode ? {
+          color: ['transparent', '#ff6b6b', '#4ecdc4', '#feca57', 'transparent']
+        } : {}}
+        transition={chaosMode ? {
+          duration: 3,
+          repeat: Infinity
+        } : {}}
       >
-        CHAOS
+        {chaosMode ? 'ULTRA-CHAOS' : 'CHAOS'}
       </FloatingText>
       
       <FloatingText
@@ -131,8 +141,15 @@ const ScrollMagic = () => {
           y: y2,
           rotate: rotate
         }}
+        animate={chaosMode ? {
+          color: ['transparent', '#ff9ff3', '#45b7d1', '#feca57', 'transparent']
+        } : {}}
+        transition={chaosMode ? {
+          duration: 4,
+          repeat: Infinity
+        } : {}}
       >
-        UNLEASHED
+        {chaosMode ? 'ENTFESSELT' : 'UNLEASHED'}
       </FloatingText>
 
       {/* Parallax elements */}
@@ -144,14 +161,19 @@ const ScrollMagic = () => {
           style={{
             left: element.x,
             top: element.y,
-            y: useTransform(scrollYProgress, [0, 1], [0, -200 - index * 100])
+            y: useTransform(scrollYProgress, [0, 1], [0, -200 - index * (chaosMode ? 150 : 100)])
           }}
           animate={{
-            rotate: [0, 360],
-            scale: [1, 1.2, 1]
+            rotate: [0, chaosMode ? 720 : 360],
+            scale: [1, chaosMode ? 1.5 : 1.2, 1],
+            filter: chaosMode ? [
+              'brightness(1) saturate(1)',
+              'brightness(1.5) saturate(2)',
+              'brightness(1) saturate(1)'
+            ] : undefined
           }}
           transition={{
-            duration: 5 + index,
+            duration: chaosMode ? 3 + index : 5 + index,
             repeat: Infinity,
             ease: "easeInOut"
           }}
@@ -180,8 +202,17 @@ const ScrollMagic = () => {
           initial={{ y: 100, opacity: 0 }}
           animate={isInView1 ? { y: 0, opacity: 1 } : { y: 100, opacity: 0 }}
           transition={{ duration: 1, ease: "easeOut" }}
+          style={chaosMode ? {
+            background: 'linear-gradient(45deg, #ff6b6b, #4ecdc4, #feca57)',
+            backgroundClip: 'text',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent'
+          } : {}}
         >
-          Die Grenzen der Realität verschwimmen
+          {chaosMode 
+            ? 'Die Realität explodiert in tausend Farben' 
+            : 'Die Grenzen der Realität verschwimmen'
+          }
         </TextReveal>
       </ContentSection>
 
@@ -191,8 +222,17 @@ const ScrollMagic = () => {
           initial={{ x: -100, opacity: 0 }}
           animate={isInView2 ? { x: 0, opacity: 1 } : { x: -100, opacity: 0 }}
           transition={{ duration: 1, delay: 0.3 }}
+          style={chaosMode ? {
+            background: 'linear-gradient(45deg, #ff9ff3, #45b7d1, #feca57)',
+            backgroundClip: 'text',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent'
+          } : {}}
         >
-          Willkommen in einer neuen Dimension
+          {chaosMode 
+            ? 'Chaos regiert in dieser verrückten Dimension' 
+            : 'Willkommen in einer neuen Dimension'
+          }
         </TextReveal>
       </ContentSection>
 
@@ -202,8 +242,17 @@ const ScrollMagic = () => {
           initial={{ scale: 0, opacity: 0 }}
           animate={isInView3 ? { scale: 1, opacity: 1 } : { scale: 0, opacity: 0 }}
           transition={{ duration: 1, delay: 0.5 }}
+          style={chaosMode ? {
+            background: 'linear-gradient(45deg, #4ecdc4, #ff6b6b, #ff9ff3)',
+            backgroundClip: 'text',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent'
+          } : {}}
         >
-          Wo alles möglich ist
+          {chaosMode 
+            ? 'Wo ALLES und NICHTS gleichzeitig möglich ist!' 
+            : 'Wo alles möglich ist'
+          }
         </TextReveal>
       </ContentSection>
 

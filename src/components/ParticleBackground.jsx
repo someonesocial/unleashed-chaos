@@ -2,7 +2,7 @@ import { useCallback, useMemo } from 'react'
 import Particles from '@tsparticles/react'
 import { loadSlim } from '@tsparticles/slim'
 
-const ParticleBackground = () => {
+const ParticleBackground = ({ chaosMode }) => {
   const particlesInit = useCallback(async (engine) => {
     await loadSlim(engine)
   }, [])
@@ -10,7 +10,7 @@ const ParticleBackground = () => {
   const options = useMemo(() => ({
     background: {
       color: {
-        value: "transparent",
+        value: chaosMode ? "#ff6b6b" : "transparent",
       },
     },
     fpsLimit: 120,
@@ -38,7 +38,9 @@ const ParticleBackground = () => {
     },
     particles: {
       color: {
-        value: ["#ff6b6b", "#4ecdc4", "#45b7d1", "#feca57", "#ff9ff3"],
+        value: chaosMode
+          ? ["#ff6b6b", "#4ecdc4", "#feca57", "#ff9ff3"]
+          : ["#ffffff"],
       },
       links: {
         color: "#ffffff",
@@ -57,7 +59,7 @@ const ParticleBackground = () => {
           default: "bounce",
         },
         random: true,
-        speed: 2,
+        speed: chaosMode ? 5 : 2,
         straight: false,
       },
       number: {
@@ -83,7 +85,7 @@ const ParticleBackground = () => {
         },
       },
       size: {
-        value: { min: 1, max: 5 },
+        value: chaosMode ? { min: 3, max: 10 } : { min: 1, max: 5 },
         animation: {
           enable: true,
           speed: 3,
@@ -92,7 +94,7 @@ const ParticleBackground = () => {
       },
     },
     detectRetina: true,
-  }), [])
+  }), [chaosMode])
 
   return (
     <Particles

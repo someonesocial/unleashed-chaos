@@ -84,7 +84,7 @@ const InteractiveButton = styled(motion.button)`
   }
 `
 
-const HeroSection = () => {
+const HeroSection = ({ onChaosToggle, chaosMode }) => {
   const [shapes, setShapes] = useState([])
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
 
@@ -181,7 +181,7 @@ const HeroSection = () => {
         transition={{ delay: 1, duration: 0.5 }}
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.95 }}
-        onClick={handleChaosMode}
+        onClick={onChaosToggle}
       >
         <span>CHAOS ENTFESSELN</span>
       </InteractiveButton>
