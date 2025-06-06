@@ -130,7 +130,6 @@ const InteractiveShapes = ({ chaosMode }) => {
       <Title
         initial={{ opacity: 0, y: -50 }}
         whileInView={{ opacity: 1, y: 0 }}
-        transition={{ duration: 1 }}
         animate={chaosMode ? {
           color: ['#fff', '#ff6b6b', '#4ecdc4', '#feca57', '#ff9ff3', '#fff']
         } : {}}

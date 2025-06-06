@@ -185,7 +185,6 @@ const SoundReactive = ({ chaosMode }) => {
       <Title
         initial={{ opacity: 0, scale: 0.5 }}
         whileInView={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 1 }}
         animate={chaosMode ? {
           rotateX: [0, 15, -15, 0],
           color: ['#fff', '#ff6b6b', '#4ecdc4', '#feca57', '#ff9ff3', '#fff']

@@ -3,7 +3,7 @@
   "private": true,
   "version": "1.0.0",
   "type": "module",
-  "homepage": "https://yourusername.github.io/unleashed-chaos",
+  "homepage": "https://someonesocial.github.io/unleashed-chaos",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
