@@ -14,7 +14,8 @@ const GlobalStyle = createGlobalStyle`
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     background: #000;
     overflow-x: hidden;
-    cursor: none;
+    width: 100vw;
+    min-width: 0;
   }
 
   html {
