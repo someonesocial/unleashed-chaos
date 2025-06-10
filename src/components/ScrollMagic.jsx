@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useRef } from 'react'
 import { motion, useScroll, useTransform, useInView } from 'framer-motion'
 import styled from 'styled-components'
 
@@ -98,7 +98,6 @@ const ScrollMagic = ({ chaosMode }) => {
   // Transform values based on scroll
   const y1 = useTransform(scrollYProgress, [0, 1], [0, chaosMode ? -800 : -500])
   const y2 = useTransform(scrollYProgress, [0, 1], [0, chaosMode ? -1200 : -800])
-  const y3 = useTransform(scrollYProgress, [0, 1], [0, chaosMode ? -600 : -300])
   const rotate = useTransform(scrollYProgress, [0, 1], [0, chaosMode ? 1440 : 720])
   const scale = useTransform(scrollYProgress, [0, 0.5, 1], [1, chaosMode ? 3 : 2, 0.5])
   const opacity = useTransform(scrollYProgress, [0, 0.5, 1], [1, 0.5, 1])
@@ -109,6 +108,15 @@ const ScrollMagic = ({ chaosMode }) => {
     { id: 3, color: 'rgba(254, 202, 87, 0.6)', x: '20%', y: '70%', rounded: true },
     { id: 4, color: 'rgba(255, 159, 243, 0.6)', x: '70%', y: '80%', rounded: false },
     { id: 5, color: 'rgba(69, 183, 209, 0.6)', x: '50%', y: '50%', rounded: true },
+  ]
+
+  // useTransform außerhalb der map deklarieren
+  const parallaxYTransforms = [
+    useTransform(scrollYProgress, [0, 1], [0, -200 - 0 * (chaosMode ? 150 : 100)]),
+    useTransform(scrollYProgress, [0, 1], [0, -200 - 1 * (chaosMode ? 150 : 100)]),
+    useTransform(scrollYProgress, [0, 1], [0, -200 - 2 * (chaosMode ? 150 : 100)]),
+    useTransform(scrollYProgress, [0, 1], [0, -200 - 3 * (chaosMode ? 150 : 100)]),
+    useTransform(scrollYProgress, [0, 1], [0, -200 - 4 * (chaosMode ? 150 : 100)])
   ]
 
   return (
@@ -161,7 +169,7 @@ const ScrollMagic = ({ chaosMode }) => {
           style={{
             left: element.x,
             top: element.y,
-            y: useTransform(scrollYProgress, [0, 1], [0, -200 - index * (chaosMode ? 150 : 100)])
+            y: parallaxYTransforms[index]
           }}
           animate={{
             rotate: [0, chaosMode ? 720 : 360],

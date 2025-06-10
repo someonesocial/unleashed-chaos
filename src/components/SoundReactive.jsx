@@ -76,9 +76,6 @@ const SoundReactive = ({ chaosMode }) => {
   const [isPlaying, setIsPlaying] = useState(false)
   const [audioData, setAudioData] = useState(new Array(chaosMode ? 80 : 50).fill(0))
   const [audioContext, setAudioContext] = useState(null)
-  const [analyser, setAnalyser] = useState(null)
-  const [dataArray, setDataArray] = useState(null)
-  const [source, setSource] = useState(null)
   const animationRef = useRef()
 
   const generateRandomBeat = () => {
@@ -136,9 +133,6 @@ const SoundReactive = ({ chaosMode }) => {
           analyserNode.connect(audioCtx.destination)
           
           setAudioContext(audioCtx)
-          setAnalyser(analyserNode)
-          setDataArray(dataArray)
-          setSource(sourceNode)
           
           sourceNode.start()
           setIsPlaying(true)

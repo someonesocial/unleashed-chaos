@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { useInView } from 'react-intersection-observer'
 import styled, { createGlobalStyle } from 'styled-components'
 import ParticleBackground from './components/ParticleBackground'
 import HeroSection from './components/HeroSection'

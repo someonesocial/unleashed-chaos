@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import styled from 'styled-components'
 
@@ -128,7 +128,6 @@ const InteractiveElement = styled(motion.div)`
 
 const ChaosGallery = ({ chaosMode }) => {
   const [selectedItem, setSelectedItem] = useState(null)
-  const [interactiveState, setInteractiveState] = useState(0)
 
   const galleryItems = [
     {
@@ -174,14 +173,6 @@ const ChaosGallery = ({ chaosMode }) => {
       interactive: false
     }
   ]
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setInteractiveState(prev => (prev + 1) % 4)
-    }, 2000)
-
-    return () => clearInterval(interval)
-  }, [])
 
   const handleItemClick = (item) => {
     setSelectedItem(item)
@@ -305,7 +296,6 @@ const ChaosGallery = ({ chaosMode }) => {
                     scale: 1.5,
                     background: "linear-gradient(45deg, #feca57, #ff9ff3, #45b7d1)"
                   }}
-                  onClick={() => setInteractiveState(prev => prev + 1)}
                 />
               )}
               

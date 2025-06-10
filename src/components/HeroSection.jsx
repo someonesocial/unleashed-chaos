@@ -84,7 +84,7 @@ const InteractiveButton = styled(motion.button)`
   }
 `
 
-const HeroSection = ({ onChaosToggle, chaosMode }) => {
+const HeroSection = ({ onChaosToggle }) => {
   const [shapes, setShapes] = useState([])
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
 
@@ -124,16 +124,6 @@ const HeroSection = ({ onChaosToggle, chaosMode }) => {
       window.removeEventListener('mousemove', handleMouseMove)
     }
   }, [])
-
-  const handleChaosMode = () => {
-    // Trigger a chaos animation
-    setShapes(prev => prev.map(shape => ({
-      ...shape,
-      x: Math.random() * window.innerWidth,
-      y: Math.random() * window.innerHeight,
-      size: Math.random() * 150 + 30
-    })))
-  }
 
   return (
     <HeroContainer>

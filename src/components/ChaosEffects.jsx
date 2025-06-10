@@ -33,14 +33,13 @@ const ScreenShake = styled(motion.div)`
   mix-blend-mode: overlay;
 `
 
-const ChaosEffects = ({ chaosMode, mousePosition }) => {
+const ChaosEffects = ({ chaosMode }) => {
   const [floatingElements, setFloatingElements] = useState([])
   const [screenShake, setScreenShake] = useState(false)
 
-  const emojis = ['⚡', '🌪️', '💥', '🔥', '⭐', '💫', '🌈', '🎆', '🎨', '🎭']
-  const phrases = ['CHAOS!', 'WILD!', 'UNLEASHED!', 'BOOM!', 'MAGIC!']
-
   useEffect(() => {
+    const emojis = ['⚡', '🌪️', '💥', '🔥', '⭐', '💫', '🌈', '🎆', '🎨', '🎭']
+    const phrases = ['CHAOS!', 'WILD!', 'UNLEASHED!', 'BOOM!', 'MAGIC!']
     if (chaosMode) {
       const interval = setInterval(() => {
         const newElement = {
