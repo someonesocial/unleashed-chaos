@@ -191,12 +191,11 @@ const ChaosGallery = ({ chaosMode }) => {
           rotateY: [0, 15, -15, 0],
           color: ['#fff', '#ff6b6b', '#4ecdc4', '#feca57', '#ff9ff3', '#fff']
         } : {}}
-        transition={chaosMode ? {
-          duration: 4,
-          repeat: Infinity
-        } : { duration: 1 }}
+        transition={{ duration: 2, repeat: Infinity }}
+        tabIndex={0}
+        aria-label="Kunstgalerie Titel"
       >
-        {chaosMode ? 'CHAOTISCHE REALITÄTEN' : 'CHAOS GALERIE'}
+        Digitale Kunstgalerie
       </Title>
 
       <GalleryGrid chaosMode={chaosMode}>

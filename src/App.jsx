@@ -1,15 +1,6 @@
-import { useState, useEffect } from 'react'
+import React, { Suspense, lazy, useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import styled, { createGlobalStyle } from 'styled-components'
-import ParticleBackground from './components/ParticleBackground'
-import HeroSection from './components/HeroSection'
-import InteractiveShapes from './components/InteractiveShapes'
-import ChaosGallery from './components/ChaosGallery'
-import SoundReactive from './components/SoundReactive'
-import ScrollMagic from './components/ScrollMagic'
-import ChaosButton from './components/ChaosButton'
-import ChaosEffects from './components/ChaosEffects'
-import MiniGame from './components/MiniGame'
 import './App.css'
 
 const GlobalStyle = createGlobalStyle`
@@ -63,6 +54,17 @@ const CustomCursor = styled(motion.div)`
   transition: all 0.3s ease;
 `
 
+// Lazy Loading für schwere Komponenten
+const ParticleBackground = React.memo(lazy(() => import('./components/ParticleBackground')))
+const HeroSection = React.memo(lazy(() => import('./components/HeroSection')))
+const InteractiveShapes = React.memo(lazy(() => import('./components/InteractiveShapes')))
+const ChaosGallery = React.memo(lazy(() => import('./components/ChaosGallery')))
+const SoundReactive = React.memo(lazy(() => import('./components/SoundReactive')))
+const ScrollMagic = React.memo(lazy(() => import('./components/ScrollMagic')))
+const ChaosButton = React.memo(lazy(() => import('./components/ChaosButton')))
+const ChaosEffects = React.memo(lazy(() => import('./components/ChaosEffects')))
+const MiniGame = React.memo(lazy(() => import('./components/MiniGame')))
+
 function App() {
   const [cursorPosition, setCursorPosition] = useState({ x: 0, y: 0 });
   const [chaosMode, setChaosMode] = useState(false);
@@ -100,43 +102,43 @@ function App() {
   return (
     <>
       <GlobalStyle />
-      <AppContainer 
-        chaosMode={chaosMode}
-        animate={chaosMode ? {
-          filter: ['hue-rotate(0deg)', 'hue-rotate(360deg)']
-        } : {}}
-        transition={chaosMode ? {
-          duration: 5,
-          repeat: Infinity
-        } : {}}
-      >
-        <CustomCursor
+      <Suspense fallback={<div className="loading-screen">Lädt...</div>}>
+        <AppContainer 
           chaosMode={chaosMode}
-          animate={{ 
-            x: cursorPosition.x - (chaosMode ? 20 : 10), 
-            y: cursorPosition.y - (chaosMode ? 20 : 10),
-            rotate: chaosMode ? [0, 360] : 0
-          }}
-          transition={{ 
-            type: "spring", 
-            stiffness: 500, 
-            damping: 28,
-            rotate: chaosMode ? { duration: 2, repeat: Infinity } : {}
-          }}
-        />
-
-        <ParticleBackground chaosMode={chaosMode} />
-        
-        <ChaosButton chaosMode={chaosMode} onToggle={toggleChaosMode} />
-        <ChaosEffects chaosMode={chaosMode} mousePosition={cursorPosition} />
-        <MiniGame chaosMode={chaosMode} />
-
-        <HeroSection onChaosToggle={toggleChaosMode} chaosMode={chaosMode} />
-        <InteractiveShapes chaosMode={chaosMode} />
-        <SoundReactive chaosMode={chaosMode} />
-        <ChaosGallery chaosMode={chaosMode} />
-        <ScrollMagic chaosMode={chaosMode} />
-      </AppContainer>
+          animate={chaosMode ? {
+            filter: ['hue-rotate(0deg)', 'hue-rotate(360deg)']
+          } : {}}
+          transition={chaosMode ? {
+            duration: 5,
+            repeat: Infinity
+          } : {}}
+        >
+          <CustomCursor
+            chaosMode={chaosMode}
+            animate={{ 
+              x: cursorPosition.x - (chaosMode ? 20 : 10), 
+              y: cursorPosition.y - (chaosMode ? 20 : 10),
+              rotate: chaosMode ? [0, 360] : 0
+            }}
+            transition={{ 
+              type: "spring", 
+              stiffness: 500, 
+              damping: 28,
+              rotate: chaosMode ? { duration: 2, repeat: Infinity } : {}
+            }}
+            className="will-change-transform"
+          />
+          <ParticleBackground chaosMode={chaosMode} />
+          <HeroSection onChaosToggle={toggleChaosMode} />
+          <InteractiveShapes chaosMode={chaosMode} />
+          <ChaosGallery chaosMode={chaosMode} />
+          <SoundReactive chaosMode={chaosMode} />
+          <ScrollMagic chaosMode={chaosMode} />
+          <ChaosButton chaosMode={chaosMode} onToggle={toggleChaosMode} />
+          <ChaosEffects chaosMode={chaosMode} />
+          <MiniGame chaosMode={chaosMode} />
+        </AppContainer>
+      </Suspense>
     </>
   );
 }

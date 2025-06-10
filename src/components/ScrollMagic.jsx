@@ -120,7 +120,7 @@ const ScrollMagic = ({ chaosMode }) => {
   ]
 
   return (
-    <ScrollContainer ref={containerRef} chaosMode={chaosMode}>
+    <ScrollContainer ref={containerRef} chaosMode={chaosMode} className="will-change-transform">
       <ScrollIndicator style={{ scaleX: scrollYProgress }} />
 
       {/* Floating background text */}

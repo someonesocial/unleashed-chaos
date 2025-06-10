@@ -126,7 +126,7 @@ const InteractiveShapes = ({ chaosMode }) => {
   }
 
   return (
-    <ShapesContainer ref={containerRef} chaosMode={chaosMode}>
+    <ShapesContainer ref={containerRef} chaosMode={chaosMode} className="will-change-transform">
       <Title
         initial={{ opacity: 0, y: -50 }}
         whileInView={{ opacity: 1, y: 0 }}

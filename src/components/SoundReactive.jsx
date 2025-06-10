@@ -176,7 +176,9 @@ const SoundReactive = ({ chaosMode }) => {
 
   return (
     <SoundContainer chaosMode={chaosMode}>
-      <Title
+      <Title 
+        tabIndex={0} 
+        aria-label="Sound Visualisierung"
         initial={{ opacity: 0, scale: 0.5 }}
         whileInView={{ opacity: 1, scale: 1 }}
         animate={chaosMode ? {

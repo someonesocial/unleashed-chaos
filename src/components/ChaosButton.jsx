@@ -62,6 +62,7 @@ const ChaosButton = ({ chaosMode, onToggle }) => {
     <>
       <ButtonContainer>
         <ChaosToggle
+          aria-label="Chaos-Modus umschalten"
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.9 }}
           animate={chaosMode ? { 
