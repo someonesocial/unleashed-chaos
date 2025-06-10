@@ -9,6 +9,7 @@ const ShapesContainer = styled.section`
   justify-content: center;
   position: relative;
   overflow: hidden;
+  z-index: 1;
   background: ${props => props.chaosMode 
     ? 'linear-gradient(135deg, #ff6b6b 0%, #4ecdc4 25%, #feca57 50%, #ff9ff3 75%, #45b7d1 100%)'
     : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'};
