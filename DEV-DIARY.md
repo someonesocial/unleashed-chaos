@@ -14,6 +14,8 @@ Claude took that pesonaly and wrote to me:
 I prompted everthing in english but somehow it always talks back in german.
 
 Tried to get past loading screen - only removing it worked.
-But after tring with multiple models gpt4o gemini 2.5 pro  i landed back at Cloaude 4.
+But after trying with multiple models gpt4o gemini 2.5 pro  i landed back at Claude 4.
 
-tried it on my samsung fold 4 where in samsung internet it didnt show eveythig and when i tried in foírefox it hard crashed :)
+tried it on my samsung fold 4, where in samsung internet it didnt show eveythig and when i tried in firefox it hard crashed :)
+
+fixed the game. but the code is just yolo vibe/coded, but that is kind of the theme of this project
