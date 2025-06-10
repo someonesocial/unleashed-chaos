@@ -10,10 +10,10 @@ const ParticleBackground = ({ chaosMode }) => {
   const options = useMemo(() => ({
     background: {
       color: {
-        value: chaosMode ? "#ff6b6b" : "transparent",
+        value: "transparent", // Entfernt den roten Hintergrund für bessere Performance
       },
     },
-    fpsLimit: 120,
+    fpsLimit: 60, // Reduziert für bessere Performance
     interactivity: {
       events: {
         onClick: {
@@ -28,10 +28,10 @@ const ParticleBackground = ({ chaosMode }) => {
       },
       modes: {
         push: {
-          quantity: 4,
+          quantity: 2, // Reduziert von 4
         },
         repulse: {
-          distance: 200,
+          distance: chaosMode ? 250 : 150,
           duration: 0.4,
         },
       },
@@ -39,61 +39,64 @@ const ParticleBackground = ({ chaosMode }) => {
     particles: {
       color: {
         value: chaosMode
-          ? ["#ff6b6b", "#4ecdc4", "#feca57", "#ff9ff3"]
-          : ["#ffffff"],
+          ? ["#ff6b6b", "#4ecdc4", "#feca57", "#ff9ff3", "#45b7d1"]
+          : ["#ff6b6b", "#4ecdc4", "#45b7d1"],
       },
       links: {
-        color: "#ffffff",
-        distance: 150,
+        color: chaosMode ? "#ff6b6b" : "#4ecdc4",
+        distance: chaosMode ? 200 : 150,
         enable: true,
-        opacity: 0.3,
-        width: 1,
+        opacity: chaosMode ? 0.6 : 0.3,
+        width: chaosMode ? 2 : 1,
       },
       collisions: {
-        enable: true,
+        enable: false, // Deaktiviert für bessere Performance
       },
       move: {
-        directions: "none",
+        direction: "none",
         enable: true,
         outModes: {
           default: "bounce",
         },
-        random: true,
-        speed: chaosMode ? 5 : 2,
+        random: chaosMode,
+        speed: chaosMode ? 4 : 2, // Reduziert für flüssigere Animation
         straight: false,
       },
       number: {
         density: {
           enable: true,
-          area: 800,
+          area: 1000, // Erhöht für weniger dichte Partikel
         },
-        value: 80,
+        value: chaosMode ? 50 : 30, // Deutlich reduziert für bessere Performance
       },
       opacity: {
-        value: 0.7,
+        value: chaosMode ? 0.8 : 0.5,
         random: true,
         animation: {
-          enable: true,
+          enable: chaosMode,
           speed: 1,
           minimumValue: 0.1,
         },
       },
       shape: {
-        type: ["circle", "triangle", "polygon"],
+        type: chaosMode ? ["circle", "triangle", "polygon"] : "circle",
         polygon: {
           sides: 6,
         },
       },
       size: {
-        value: chaosMode ? { min: 3, max: 10 } : { min: 1, max: 5 },
+        value: chaosMode ? { min: 2, max: 6 } : { min: 1, max: 3 },
         animation: {
-          enable: true,
-          speed: 3,
+          enable: chaosMode,
+          speed: 2,
           minimumValue: 0.1,
         },
       },
     },
     detectRetina: true,
+    // Performance-Optimierungen
+    smooth: true,
+    reduceDuplicates: true,
   }), [chaosMode])
 
   return (
@@ -107,7 +110,11 @@ const ParticleBackground = ({ chaosMode }) => {
         left: 0,
         width: '100%',
         height: '100%',
-        zIndex: -1
+        zIndex: -1,
+        // Performance-Optimierungen
+        willChange: 'transform',
+        transform: 'translateZ(0)',
+        backfaceVisibility: 'hidden'
       }}
     />
   )

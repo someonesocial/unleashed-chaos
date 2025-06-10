@@ -150,15 +150,15 @@ const SoundReactive = ({ chaosMode }) => {
           }
           visualize()
           
-        } catch (error) {
-          console.error('Error decoding audio:', error)
+        } catch {
+          // Fallback für Audio-Dekodierung
           generateRandomBeat()
         }
       }
       
       fileReader.readAsArrayBuffer(file)
-    } catch (error) {
-      console.error('Error setting up audio:', error)
+    } catch {
+      // Fallback für Audio-Setup
       generateRandomBeat()
     }
   }

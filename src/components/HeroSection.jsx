@@ -1,6 +1,8 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { motion } from 'framer-motion'
 import styled from 'styled-components'
+import useOptimizedMousePosition from '../hooks/useOptimizedMousePosition'
+import useWindowEvent from '../hooks/useWindowEvent'
 
 const HeroContainer = styled.section`
   height: 100vh;
@@ -10,6 +12,9 @@ const HeroContainer = styled.section`
   justify-content: center;
   position: relative;
   overflow: hidden;
+  /* Performance-Optimierung */
+  will-change: transform;
+  transform: translateZ(0);
 `
 
 const Title = styled(motion.h1)`
@@ -24,6 +29,8 @@ const Title = styled(motion.h1)`
   animation: gradientShift 3s ease infinite;
   margin-bottom: 2rem;
   filter: drop-shadow(0 0 30px rgba(255, 107, 107, 0.5));
+  /* Performance-Optimierung */
+  will-change: background-position;
 
   @keyframes gradientShift {
     0% { background-position: 0% 50%; }
@@ -40,6 +47,7 @@ const Subtitle = styled(motion.p)`
   line-height: 1.6;
   margin-bottom: 3rem;
   text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+  opacity: 0.9;
 `
 
 const FloatingShape = styled(motion.div)`
@@ -49,7 +57,10 @@ const FloatingShape = styled(motion.div)`
   background: ${props => props.color};
   border-radius: ${props => props.rounded ? '50%' : '0'};
   filter: blur(1px);
-  opacity: 0.7;
+  opacity: 0.6;
+  /* Performance-Optimierung */
+  will-change: transform;
+  transform: translateZ(0);
 `
 
 const InteractiveButton = styled(motion.button)`
@@ -86,91 +97,138 @@ const InteractiveButton = styled(motion.button)`
 
 const HeroSection = ({ onChaosToggle }) => {
   const [shapes, setShapes] = useState([])
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
+  
+  // Optimierter Mouse Position Hook
+  const mousePosition = useOptimizedMousePosition(32) // Reduziert auf 30fps für Hero
+  
+  // Memoized Shape-Konfiguration
+  const shapeConfig = useMemo(() => ({
+    count: 8, // Reduziert von 15 für bessere Performance
+    colors: [
+      'rgba(255, 107, 107, 0.4)', // Reduzierte Opazität
+      'rgba(78, 205, 196, 0.4)',
+      'rgba(69, 183, 209, 0.4)',
+      'rgba(254, 202, 87, 0.4)',
+      'rgba(255, 159, 243, 0.4)'
+    ]
+  }), [])
+
+  const generateShapes = useCallback(() => {
+    const newShapes = []
+    for (let i = 0; i < shapeConfig.count; i++) {
+      newShapes.push({
+        id: i,
+        size: Math.random() * 80 + 20, // Kleinere Shapes
+        x: Math.random() * window.innerWidth,
+        y: Math.random() * window.innerHeight,
+        color: shapeConfig.colors[Math.floor(Math.random() * shapeConfig.colors.length)],
+        rounded: Math.random() > 0.5
+      })
+    }
+    setShapes(newShapes)
+  }, [shapeConfig])
+
+  // Optimierte Event-Listener mit Custom Hook
+  useWindowEvent('resize', generateShapes)
 
   useEffect(() => {
-    const generateShapes = () => {
-      const newShapes = []
-      for (let i = 0; i < 15; i++) {
-        newShapes.push({
-          id: i,
-          size: Math.random() * 100 + 20,
-          x: Math.random() * window.innerWidth,
-          y: Math.random() * window.innerHeight,
-          color: [
-            'rgba(255, 107, 107, 0.6)',
-            'rgba(78, 205, 196, 0.6)',
-            'rgba(69, 183, 209, 0.6)',
-            'rgba(254, 202, 87, 0.6)',
-            'rgba(255, 159, 243, 0.6)'
-          ][Math.floor(Math.random() * 5)],
-          rounded: Math.random() > 0.5
-        })
-      }
-      setShapes(newShapes)
-    }
-
     generateShapes()
-    window.addEventListener('resize', generateShapes)
+  }, [generateShapes])
 
-    const handleMouseMove = (e) => {
-      setMousePosition({ x: e.clientX, y: e.clientY })
+  // Memoized Animation-Variants
+  const titleVariants = useMemo(() => ({
+    initial: { opacity: 0, y: 50, scale: 0.9 },
+    animate: { 
+      opacity: 1, 
+      y: 0, 
+      scale: 1,
+      transition: { duration: 1, ease: "easeOut" }
     }
+  }), [])
 
-    window.addEventListener('mousemove', handleMouseMove)
-
-    return () => {
-      window.removeEventListener('resize', generateShapes)
-      window.removeEventListener('mousemove', handleMouseMove)
+  const subtitleVariants = useMemo(() => ({
+    initial: { opacity: 0, y: 30 },
+    animate: { 
+      opacity: 1, 
+      y: 0,
+      transition: { duration: 1, delay: 0.3, ease: "easeOut" }
     }
-  }, [])
+  }), [])
+
+  const buttonVariants = useMemo(() => ({
+    initial: { opacity: 0, y: 30 },
+    animate: { 
+      opacity: 1, 
+      y: 0,
+      transition: { duration: 1, delay: 0.6, ease: "easeOut" }
+    },
+    hover: { 
+      scale: 1.05,
+      boxShadow: "0 20px 40px rgba(254, 202, 87, 0.4)",
+      transition: { duration: 0.2 }
+    },
+    tap: { scale: 0.95 }
+  }), [])
 
   return (
     <HeroContainer>
-      {shapes.map((shape) => (
-        <FloatingShape
-          key={shape.id}
-          size={shape.size}
-          color={shape.color}
-          rounded={shape.rounded}
-          animate={{
-            x: [shape.x, shape.x + (mousePosition.x - shape.x) * 0.1],
-            y: [shape.y, shape.y + (mousePosition.y - shape.y) * 0.1],
-            rotate: [0, 360],
-            scale: [1, 1.2, 1]
-          }}
-          transition={{
-            duration: 20,
-            repeat: Infinity,
-            ease: "easeInOut"
-          }}
-        />
-      ))}
+      {shapes.map((shape) => {
+        // Optimierte Maus-Interaktion mit reduzierter Intensität
+        const distance = Math.sqrt(
+          Math.pow(mousePosition.x - shape.x, 2) + 
+          Math.pow(mousePosition.y - shape.y, 2)
+        )
+        const influence = Math.max(0, 200 - distance) / 200 * 0.05 // Reduzierte Intensität
+        
+        return (
+          <FloatingShape
+            key={shape.id}
+            size={shape.size}
+            color={shape.color}
+            rounded={shape.rounded}
+            animate={{
+              x: shape.x + (mousePosition.x - shape.x) * influence,
+              y: shape.y + (mousePosition.y - shape.y) * influence,
+              rotate: [0, 360],
+              scale: [1, 1.1, 1]
+            }}
+            transition={{
+              duration: 15, // Langsamere Animation für bessere Performance
+              repeat: Infinity,
+              ease: "easeInOut",
+              x: { type: "spring", stiffness: 50, damping: 20 },
+              y: { type: "spring", stiffness: 50, damping: 20 }
+            }}
+            style={{
+              left: 0,
+              top: 0
+            }}
+          />
+        )
+      })}
 
       <Title
-        initial={{ scale: 0, rotate: -180 }}
-        animate={{ scale: 1, rotate: 0 }}
-        transition={{ duration: 1.5, type: "spring", stiffness: 100 }}
+        variants={titleVariants}
+        initial="initial"
+        animate="animate"
       >
         UNLEASHED CHAOS
       </Title>
 
       <Subtitle
-        initial={{ opacity: 0, y: 50 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.5, duration: 1 }}
+        variants={subtitleVariants}
+        initial="initial"
+        animate="animate"
       >
-        Tauchen Sie ein in eine Welt, wo Kreativität keine Grenzen kennt.
-        Erleben Sie das Unmögliche. Spüren Sie das Unvorhersagbare.
-        Willkommen im Chaos der Sinne.
+        Erlebe interaktive Kunst, die Grenzen sprengt und Chaos in Schönheit verwandelt
       </Subtitle>
 
       <InteractiveButton
-        initial={{ opacity: 0, scale: 0 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ delay: 1, duration: 0.5 }}
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.95 }}
+        variants={buttonVariants}
+        initial="initial"
+        animate="animate"
+        whileHover="hover"
+        whileTap="tap"
         onClick={onChaosToggle}
       >
         <span>CHAOS ENTFESSELN</span>

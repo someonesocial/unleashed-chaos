@@ -6,6 +6,13 @@
   --chaos-accent: #feca57;
   --chaos-purple: #667eea;
   --chaos-pink: #ff9ff3;
+  
+  /* Performance-optimierte Variablen */
+  --animation-fast: 0.2s;
+  --animation-medium: 0.5s;
+  --animation-slow: 1s;
+  --easing-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+  --easing-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
 }
 
 * {
@@ -21,12 +28,21 @@ body {
   overflow-x: hidden;
   width: 100vw;
   min-width: 0;
+  /* Performance-Optimierungen */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: 'kern' 1;
+  font-variant-ligatures: common-ligatures;
 }
 
 #root {
   width: 100vw;
   min-width: 0;
   overflow-x: hidden;
+  /* GPU-Beschleunigung für Root */
+  transform: translateZ(0);
+  backface-visibility: hidden;
 }
 
 /* Smooth scroll behavior */
@@ -34,22 +50,48 @@ html {
   scroll-behavior: smooth;
 }
 
+/* Erweiterte Performance-Optimierungen */
+.gpu-accelerated {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+.will-change-auto {
+  will-change: auto;
+}
+
+.will-change-scroll {
+  will-change: scroll-position;
+}
+
+.will-change-contents {
+  will-change: contents;
+}
+
 /* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
+  height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #000;
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb {
   background: linear-gradient(45deg, var(--chaos-primary), var(--chaos-secondary));
   border-radius: 4px;
+  transition: background var(--animation-fast) var(--easing-smooth);
 }
 
 ::-webkit-scrollbar-thumb:hover {
   background: linear-gradient(45deg, var(--chaos-secondary), var(--chaos-accent));
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent;
 }
 
 /* Global animations */
@@ -66,6 +108,15 @@ html {
 @keyframes glow {
   0%, 100% { box-shadow: 0 0 20px rgba(255, 107, 107, 0.5); }
   50% { box-shadow: 0 0 40px rgba(78, 205, 196, 0.8); }
+}
+
+/* Optimierte Animationen für bessere Performance */
+.smooth-animation {
+  transition-timing-function: var(--easing-smooth);
+}
+
+.bounce-animation {
+  transition-timing-function: var(--easing-bounce);
 }
 
 /* Utility classes */
@@ -93,6 +144,84 @@ html {
   align-items: center;
   justify-content: center;
   z-index: 10000;
+}
+
+/* Verbesserte Hover-Effekte */
+.interactive-element {
+  transition: all var(--animation-fast) var(--easing-smooth);
+  transform: translateZ(0);
+}
+
+.interactive-element:hover {
+  transform: translateZ(0) scale(1.05);
+}
+
+.interactive-element:active {
+  transform: translateZ(0) scale(0.95);
+}
+
+/* Optimierte Glitch-Effekte */
+@keyframes optimized-glitch {
+  0%, 100% { 
+    transform: translateZ(0);
+    filter: hue-rotate(0deg);
+  }
+  25% { 
+    transform: translateZ(0) translateX(2px);
+    filter: hue-rotate(90deg);
+  }
+  50% { 
+    transform: translateZ(0) translateX(-2px);
+    filter: hue-rotate(180deg);
+  }
+  75% { 
+    transform: translateZ(0) translateY(1px);
+    filter: hue-rotate(270deg);
+  }
+}
+
+.chaos-glitch {
+  animation: optimized-glitch 0.3s ease-in-out;
+}
+
+/* Container Queries für moderne Browser */
+@container (min-width: 768px) {
+  .container-responsive {
+    font-size: 1.2rem;
+  }
+}
+
+/* Prefers Color Scheme Support */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --text-color: #ffffff;
+    --bg-color: #000000;
+  }
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --text-color: #000000;
+    --bg-color: #ffffff;
+  }
+}
+
+/* Focus Management für Accessibility */
+.skip-to-content {
+  position: absolute;
+  top: -40px;
+  left: 6px;
+  background: var(--chaos-primary);
+  color: white;
+  padding: 8px;
+  text-decoration: none;
+  border-radius: 4px;
+  z-index: 10001;
+  transition: top var(--animation-fast) var(--easing-smooth);
+}
+
+.skip-to-content:focus {
+  top: 6px;
 }
 
 /* Responsive design */
@@ -135,6 +264,11 @@ html {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  
+  .parallax {
+    transform: none !important;
   }
 }
 
@@ -144,4 +278,53 @@ input:focus,
 [tabindex]:focus {
   outline: 2px solid var(--chaos-accent);
   outline-offset: 2px;
+}
+
+/* Improved button reset */
+button {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: inherit;
+}
+
+/* Better image optimization */
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Lazy loading optimization */
+img[loading="lazy"] {
+  opacity: 0;
+  transition: opacity var(--animation-medium) var(--easing-smooth);
+}
+
+img[loading="lazy"].loaded {
+  opacity: 1;
+}
+
+/* Print Styles */
+@media print {
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
+  
+  .no-print {
+    display: none !important;
+  }
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+  :root {
+    --chaos-primary: #000000;
+    --chaos-secondary: #ffffff;
+    --chaos-accent: #000000;
+  }
 }

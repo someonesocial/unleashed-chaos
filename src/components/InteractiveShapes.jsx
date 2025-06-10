@@ -1,6 +1,9 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { motion } from 'framer-motion'
 import styled from 'styled-components'
+import useOptimizedMousePosition from '../hooks/useOptimizedMousePosition'
+import useWindowEvent from '../hooks/useWindowEvent'
+import useIntersectionObserver from '../hooks/useIntersectionObserver'
 
 const ShapesContainer = styled.section`
   min-height: 100vh;
@@ -15,6 +18,9 @@ const ShapesContainer = styled.section`
     : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'};
   background-size: ${props => props.chaosMode ? '400% 400%' : '100% 100%'};
   animation: ${props => props.chaosMode ? 'gradientShift 3s ease infinite' : 'none'};
+  /* Performance-Optimierung */
+  will-change: ${props => props.chaosMode ? 'background-position' : 'auto'};
+  transform: translateZ(0);
 
   @keyframes gradientShift {
     0% { background-position: 0% 50%; }
@@ -32,6 +38,9 @@ const ShapeElement = styled(motion.div)`
   cursor: pointer;
   filter: ${props => props.filter || 'none'};
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  /* Performance-Optimierung */
+  will-change: transform;
+  backface-visibility: hidden;
 `
 
 const Title = styled(motion.h2)`
@@ -44,109 +53,120 @@ const Title = styled(motion.h2)`
   text-align: center;
   z-index: 10;
   text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+  /* Performance-Optimierung */
+  will-change: transform, color;
 `
 
 const InteractiveShapes = ({ chaosMode }) => {
   const [shapes, setShapes] = useState([])
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 })
-  const containerRef = useRef(null)
+  
+  // Performance-optimierter Mouse Position Hook
+  const mousePosition = useOptimizedMousePosition(16) // 60fps
+  
+  // Intersection Observer für bessere Performance
+  const [intersectionRef, isInView] = useIntersectionObserver({
+    threshold: 0.1,
+    triggerOnce: false
+  })
 
-  useEffect(() => {
-    const generateShapes = () => {
-      const shapeTypes = [
-        { type: 'circle', borderRadius: '50%' },
-        { type: 'square', borderRadius: '0px' },
-        { type: 'rounded-square', borderRadius: '20px' },
-        { type: 'pill', borderRadius: '100px' }
-      ]
+  // Memoized Shape-Konfiguration
+  const shapeConfig = useMemo(() => ({
+    count: chaosMode ? 12 : 8, // Reduziert für bessere Performance
+    shapeTypes: [
+      { type: 'circle', borderRadius: '50%' },
+      { type: 'square', borderRadius: '0px' },
+      { type: 'rounded-square', borderRadius: '20px' },
+      { type: 'pill', borderRadius: '100px' }
+    ],
+    colors: [
+      'linear-gradient(45deg, #ff6b6b, #ee5a6f)',
+      'linear-gradient(45deg, #4ecdc4, #44a08d)',
+      'linear-gradient(45deg, #45b7d1, #96c93d)',
+      'linear-gradient(45deg, #feca57, #ff9ff3)',
+      'linear-gradient(45deg, #fd79a8, #fdcb6e)',
+    ]
+  }), [chaosMode])
 
-      const colors = [
-        'linear-gradient(45deg, #ff6b6b, #ee5a6f)',
-        'linear-gradient(45deg, #4ecdc4, #44a08d)',
-        'linear-gradient(45deg, #45b7d1, #96c93d)',
-        'linear-gradient(45deg, #feca57, #ff9ff3)',
-        'linear-gradient(45deg, #fd79a8, #fdcb6e)',
-        'linear-gradient(45deg, #6c5ce7, #a29bfe)'
-      ]
-
-      const newShapes = Array.from({ length: chaosMode ? 35 : 20 }, (_, i) => {
-        const shapeType = shapeTypes[Math.floor(Math.random() * shapeTypes.length)]
-        const size = Math.random() * (chaosMode ? 150 : 100) + (chaosMode ? 30 : 50)
-        return {
-          id: i,
-          x: Math.random() * (window.innerWidth - size),
-          y: Math.random() * (window.innerHeight - size),
-          width: size,
-          height: size,
-          borderRadius: shapeType.borderRadius,
-          background: colors[Math.floor(Math.random() * colors.length)],
-          rotationSpeed: (Math.random() - 0.5) * (chaosMode ? 5 : 2),
-          scale: 1,
-          filter: Math.random() > (chaosMode ? 0.3 : 0.7) ? 'blur(2px)' : 'none'
-        }
-      })
-      setShapes(newShapes)
-    }
-
-    generateShapes()
+  const generateShapes = useCallback(() => {
+    if (!isInView) return // Nur generieren wenn sichtbar
     
-    const handleMouseMove = (e) => {
-      if (containerRef.current) {
-        const rect = containerRef.current.getBoundingClientRect()
-        setMousePos({
-          x: e.clientX - rect.left,
-          y: e.clientY - rect.top
-        })
-      }
+    const newShapes = []
+    for (let i = 0; i < shapeConfig.count; i++) {
+      const shapeType = shapeConfig.shapeTypes[Math.floor(Math.random() * shapeConfig.shapeTypes.length)]
+      const size = Math.random() * 80 + 40 // Kleinere Shapes
+      
+      newShapes.push({
+        id: i,
+        ...shapeType,
+        width: size,
+        height: size,
+        x: Math.random() * (window.innerWidth - size),
+        y: Math.random() * (window.innerHeight - size),
+        background: shapeConfig.colors[Math.floor(Math.random() * shapeConfig.colors.length)],
+        scale: 1,
+        rotationSpeed: (Math.random() - 0.5) * 2,
+        filter: chaosMode ? `hue-rotate(${Math.random() * 360}deg)` : 'none'
+      })
     }
+    setShapes(newShapes)
+  }, [shapeConfig, isInView, chaosMode])
 
-    const handleResize = () => {
-      generateShapes()
-    }
-
-    window.addEventListener('mousemove', handleMouseMove)
-    window.addEventListener('resize', handleResize)
-
-    return () => {
-      window.removeEventListener('mousemove', handleMouseMove)
-      window.removeEventListener('resize', handleResize)
-    }
-  }, [chaosMode])
-
-  const handleShapeClick = (shapeId) => {
+  const handleShapeClick = useCallback((shapeId) => {
     setShapes(prev => prev.map(shape => 
       shape.id === shapeId 
         ? {
             ...shape,
             x: Math.random() * (window.innerWidth - shape.width),
             y: Math.random() * (window.innerHeight - shape.height),
-            scale: shape.scale === 1 ? 1.5 : 1
+            scale: shape.scale === 1 ? 1.3 : 1
           }
         : shape
     ))
-  }
+  }, [])
+
+  // Optimierte Event-Listener
+  useWindowEvent('resize', generateShapes)
+
+  useEffect(() => {
+    generateShapes()
+  }, [generateShapes])
+
+  // Memoized Title Animation
+  const titleAnimation = useMemo(() => ({
+    initial: { opacity: 0, y: -50 },
+    animate: { 
+      opacity: 1, 
+      y: 0,
+      color: chaosMode 
+        ? ['#fff', '#ff6b6b', '#4ecdc4', '#feca57', '#ff9ff3', '#fff']
+        : '#fff'
+    },
+    transition: chaosMode ? {
+      duration: 2,
+      repeat: Infinity,
+      color: { duration: 2, repeat: Infinity }
+    } : { duration: 1 }
+  }), [chaosMode])
 
   return (
-    <ShapesContainer ref={containerRef} chaosMode={chaosMode} className="will-change-transform">
+    <ShapesContainer ref={intersectionRef} chaosMode={chaosMode} className="will-change-transform">
       <Title
-        initial={{ opacity: 0, y: -50 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        animate={chaosMode ? {
-          color: ['#fff', '#ff6b6b', '#4ecdc4', '#feca57', '#ff9ff3', '#fff']
-        } : {}}
-        transition={chaosMode ? {
-          duration: 2,
-          repeat: Infinity
-        } : { duration: 1 }}
+        initial={titleAnimation.initial}
+        whileInView={titleAnimation.animate}
+        animate={titleAnimation.animate}
+        transition={titleAnimation.transition}
       >
         {chaosMode ? 'CHAOTISCHE DIMENSIONEN' : 'INTERAKTIVE DIMENSIONEN'}
       </Title>
 
-      {shapes.map((shape) => {
-        const distanceFromMouse = Math.sqrt(
-          Math.pow(mousePos.x - shape.x, 2) + Math.pow(mousePos.y - shape.y, 2)
+      {isInView && shapes.map((shape) => {
+        // Optimierte Maus-Interaktion mit reduzierter Berechnung
+        const distance = Math.sqrt(
+          Math.pow(mousePosition.x - shape.x, 2) + Math.pow(mousePosition.y - shape.y, 2)
         )
-        const influence = Math.max(0, (chaosMode ? 300 : 200) - distanceFromMouse) / (chaosMode ? 300 : 200)
+        const maxDistance = chaosMode ? 250 : 200
+        const influence = Math.max(0, maxDistance - distance) / maxDistance
+        const intensityMultiplier = chaosMode ? 0.2 : 0.1 // Reduzierte Intensität
         
         return (
           <ShapeElement
@@ -157,20 +177,21 @@ const InteractiveShapes = ({ chaosMode }) => {
             background={shape.background}
             filter={shape.filter}
             animate={{
-              x: shape.x + (mousePos.x - shape.x) * influence * (chaosMode ? 0.3 : 0.1),
-              y: shape.y + (mousePos.y - shape.y) * influence * (chaosMode ? 0.3 : 0.1),
-              rotate: shape.rotationSpeed * influence * (chaosMode ? 360 : 180),
-              scale: shape.scale + influence * (chaosMode ? 0.8 : 0.3)
+              x: shape.x + (mousePosition.x - shape.x) * influence * intensityMultiplier,
+              y: shape.y + (mousePosition.y - shape.y) * influence * intensityMultiplier,
+              rotate: shape.rotationSpeed * influence * (chaosMode ? 180 : 90),
+              scale: shape.scale + influence * (chaosMode ? 0.4 : 0.2)
             }}
             transition={{
               type: "spring",
-              stiffness: chaosMode ? 400 : 300,
-              damping: chaosMode ? 20 : 30
+              stiffness: chaosMode ? 300 : 200,
+              damping: chaosMode ? 15 : 20,
+              mass: 0.5
             }}
             whileHover={{
-              scale: shape.scale * (chaosMode ? 1.5 : 1.2),
-              rotate: chaosMode ? 720 : 180,
-              filter: chaosMode ? 'brightness(2) saturate(2) hue-rotate(90deg)' : 'brightness(1.5) saturate(1.5)'
+              scale: shape.scale * (chaosMode ? 1.3 : 1.1),
+              rotate: chaosMode ? 360 : 180,
+              filter: chaosMode ? 'brightness(1.5) saturate(2) hue-rotate(90deg)' : 'brightness(1.2) saturate(1.3)'
             }}
             whileTap={{
               scale: shape.scale * 0.8

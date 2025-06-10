@@ -129,7 +129,7 @@ const ScrollMagic = ({ chaosMode }) => {
           top: '20%',
           left: '10%',
           y: y1,
-          rotate: rotate
+          rotate
         }}
         animate={chaosMode ? {
           color: ['transparent', '#ff6b6b', '#4ecdc4', '#feca57', 'transparent']
@@ -147,7 +147,7 @@ const ScrollMagic = ({ chaosMode }) => {
           top: '60%',
           right: '10%',
           y: y2,
-          rotate: rotate
+          rotate
         }}
         animate={chaosMode ? {
           color: ['transparent', '#ff9ff3', '#45b7d1', '#feca57', 'transparent']
@@ -191,9 +191,9 @@ const ScrollMagic = ({ chaosMode }) => {
       <ContentSection>
         <MorphingShape
           style={{
-            scale: scale,
-            rotate: rotate,
-            opacity: opacity
+            scale,
+            rotate,
+            opacity
           }}
           animate={{
             borderRadius: ["50%", "20%", "50%", "0%", "50%"]
